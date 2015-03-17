@@ -65,13 +65,6 @@ css-html-prettify.py file.scss
 css-html-prettify.py /project/static/
 ```
 
-# Install permanently on the system:
-
-**PIP:**
-```
-sudo pip3 install css-html-prettify
-```
-
 
 # Why?:
 
