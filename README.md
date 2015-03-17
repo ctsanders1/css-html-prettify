@@ -66,6 +66,63 @@ css-html-prettify.py /project/static/
 ```
 
 
+**Input CSS:**
+```css
+/* dont remove this comment */
+.class, #NotHex, input[type="text"], a:hover  {
+    border:none;
+    margin:0 0 0 0;
+    border-color:    fuchsia;
+    color:           mediumspringgreen;
+    background-position:0 0;
+    transform-origin:0 0;
+    margin: 0px !important;
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+
+
+
+
+.foo {content: "If you leave too much new lines it will add a horizontal line"}
+```
+
+**Output CSS:**
+```css
+@charset utf-8;
+
+
+/* dont remove this comment */
+.class, #NotHex, input[type="text"], a:hover {
+    background-color:    #FFFFFF;
+    background-position: 0 0;
+    border:              none;
+    border-color:        fuchsia;
+
+    color:               mediumspringgreen;
+    color:               #000000;
+
+    margin:              0 0 0 0;
+    margin:              0 !important;
+
+    transform-origin:    0 0;
+}
+
+
+
+
+/* ------------------------------------------------------------------------ */
+
+
+
+
+.foo {content: "If you leave too much new lines it will add a horizontal line"}
+
+
+```
+
+
 # Why?:
 
 - This project is the small brother of [another project that does the inverse, a Minifier Compressor for the Web.](https://github.com/juancarlospaco/css-html-js-minify#css-html-js-minify)
