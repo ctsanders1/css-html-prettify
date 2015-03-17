@@ -2,7 +2,7 @@
 StandAlone Async single-file cross-platform no-dependencies Unicode-ready Python3-ready Prettifier Beautifier for the Web.
 
 
-[![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org) [![PyPI](https://pypip.in/v/css-html-js-minify/badge.png "PyPI Package")](https://pypi.python.org/pypi/css-html-js-minify) [![Join the chat at https://gitter.im/juancarlospaco/css-html-js-minify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/juancarlospaco/css-html-js-minify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge "Chat with Users and Developers, Get Solutions, Offer Help") [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif "Donate with or without Credit Card")](http://goo.gl/cB7PR)
+[![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org) [![Join the chat at https://gitter.im/juancarlospaco/css-html-js-minify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/juancarlospaco/css-html-js-minify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge "Chat with Users and Developers, Get Solutions, Offer Help") [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif "Donate with or without Credit Card")](http://goo.gl/cB7PR)
 
 
 ```bash
@@ -21,7 +21,7 @@ positional arguments:
 
 optional arguments:
     -h, --help       show this help message and exit
-    --version        show program's version number and exit
+    --version        show programs version number and exit
     --prefix PREFIX  Prefix string to prepend on output filenames.
     --timestamp      Add a Time Stamp on all CSS/SCSS output files.
     --quiet          Quiet, Silent, force disable all Logging.
@@ -44,7 +44,7 @@ not. Watch works for whole folders, with minimum of ~60 Secs between runs.
 - Pretty-Printed colored Logging to Standard Output and Log File on OS Temporary Folder.
 - Set its own Process name and show up on Process lists.
 - Can check for updates for itself.
-- Full Unicode/UTF-8 support.
+- Full Unicode/UTF-8 support, SASS SCSS Support.
 - Smooth CPU usage.
 - Can Watch for changes on files.
 - Can execute arbitrary commands after and before running.
@@ -56,7 +56,11 @@ not. Watch works for whole folders, with minimum of ~60 Secs between runs.
 ```bash
 css-html-prettify.py file.html
 
+css-html-prettify.py file.htm
+
 css-html-prettify.py file.css
+
+css-html-prettify.py file.scss
 
 css-html-prettify.py /project/static/
 ```
