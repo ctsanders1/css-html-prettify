@@ -26,7 +26,10 @@ from random import randint
 from tempfile import gettempdir
 from time import sleep
 
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    print("BeautifulSoup4 Not Found!, use:  sudo apt-get install python3-bs4")
 
 try:
     from urllib import request
@@ -171,8 +174,10 @@ def _props_grouper(props, pgs):
     log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
-    props = sorted([_ if _.strip().endswith(";")
-                   else _.rstrip() + ";\n" for _ in props])
+    props = sorted([
+        _ if _.strip().endswith(";")
+        and not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
@@ -227,7 +232,7 @@ def remove_empty_rules(css):
 def condense_zero_units(css):
     """Replace `0(px, em, %, etc)` with `0`."""
     log.debug("Condensing all zeroes on values.")
-    return re.sub(r"([\s:])(0)(px|em|%|in|cm|mm|pc|pt|ex)", r"\1\2", css)
+    return re.sub(r"([\s:])(0)(px|em|rem|%|in|cm|mm|pc|pt|ex)", r"\1\2", css)
 
 
 def condense_semicolons(css):
@@ -266,11 +271,11 @@ def normalize_whitespace(css):
     css = re.sub(r"\n{3}", "\n\n\n", css)  # if 3 new lines,make them 2
     css = re.sub(r"\n{5}", "\n\n\n\n\n", css)  # if 5 new lines, make them 4
     h_line = "/* {} */".format("-" * 72)  # if >6 new lines, horizontal line
-    css = re.sub(r"\n{6,}", "\n\n\n\n\n{}\n\n\n\n\n".format(h_line), css)
+    css = re.sub(r"\n{6,}", "\n\n\n{}\n\n\n".format(h_line), css)
     css = css.replace(" ;\n", ";\n").replace("{\n", " {\n")
     css = re.sub("\s{2,}{\n", " {\n", css)
     log.debug("Finished Normalize white spaces on CSS.")
-    return css.replace("\t", "    ").rstrip("\n") + "\n\n"
+    return css.replace("\t", "    ").rstrip() + "\n"
 
 
 def justify_right(css):
@@ -304,16 +309,39 @@ def justify_right(css):
     return right_justified_css if max_indent > 1 else css
 
 
+def split_long_selectors(css):
+    """Split too large CSS Selectors chained with commas if > 80 chars."""
+    log.debug("Splitting too long chained selectors on CSS / SCSS.")
+    result = ""
+    for line in css.splitlines():
+        cond_1 = len(line) > 80 and "," in line and line.strip().endswith("{")
+        cond_2 = line.startswith(("*", ".", "#"))
+        if cond_1 and cond_2:
+            result += line.replace(", ", ",").replace(",", ",\n").replace(
+                "{", "{\n")
+        else:
+            result += line + "\n"
+    return result
+
+
+def simple_replace(css):
+    """dumb simple replacements on CSS."""
+    return css.replace("}\n#", "}\n\n#").replace(
+        "}\n.", "}\n\n.").replace("}\n*", "}\n\n*")
+
+
 def css_prettify(css, justify=False):
     """Prettify CSS main function."""
     log.info("Prettify CSS / SCSS...")
     css = sort_properties(css)
     css = condense_zero_units(css)
     css = wrap_css_lines(css, 80)
+    css = split_long_selectors(css)
     css = condense_semicolons(css)
     css = normalize_whitespace(css)
     css = justify_right(css) if justify else css
     css = add_encoding(css)
+    css = simple_replace(css)
     log.info("Finished Prettify CSS / SCSS !.")
     return css
 
