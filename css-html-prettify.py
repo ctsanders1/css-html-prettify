@@ -13,13 +13,16 @@ import itertools
 import logging as log
 import os
 import re
+import socket
 import sys
 from argparse import ArgumentParser
 from copy import copy
 from ctypes import byref, cdll, create_string_buffer
 from datetime import datetime
-from doctest import testmod
-from multiprocessing import cpu_count, Pool
+from getpass import getuser
+from multiprocessing import Pool, cpu_count
+from platform import platform, python_version
+from random import randint
 from tempfile import gettempdir
 from time import sleep
 
@@ -168,8 +171,8 @@ def _props_grouper(props, pgs):
     log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
-    # props = [_ if _.strip().endswith(";")
-    #          else _.rstrip() + ";\n" for _ in props]
+    props = sorted([_ if _.strip().endswith(";")
+                   else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
@@ -244,17 +247,18 @@ def wrap_css_lines(css, line_length=80):
             line_start = i + 1
     if line_start < len(css):
         lines.append(css[line_start:])
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def add_encoding(css):
     """Add @charset 'UTF-8'; if missing."""
     log.debug("Adding encoding declaration if needed.")
-    return "@charset utf-8;\n\n" + css if "@charset" not in css else css
+    return "@charset utf-8;\n\n\n" + css if "@charset" not in css else css
 
 
 def normalize_whitespace(css):
     """Normalize css string white spaces."""
+    log.debug("Starting to Normalize white spaces on CSS if needed.")
     css_no_trailing_whitespace = ""
     for line_of_css in css.splitlines():  # remove all trailing white spaces
         css_no_trailing_whitespace += line_of_css.rstrip() + "\n"
@@ -265,24 +269,27 @@ def normalize_whitespace(css):
     css = re.sub(r"\n{6,}", "\n\n\n\n\n{}\n\n\n\n\n".format(h_line), css)
     css = css.replace(" ;\n", ";\n").replace("{\n", " {\n")
     css = re.sub("\s{2,}{\n", " {\n", css)
+    log.debug("Finished Normalize white spaces on CSS.")
     return css.replace("\t", "    ").rstrip("\n") + "\n\n"
 
 
 def justify_right(css):
     """Justify to the Right all CSS properties on the argument css string."""
-    log.debug("Justify to the Right all CSS / SCSS Property values.")
+    log.debug("Starting Justify to the Right all CSS / SCSS Property values.")
     max_indent, right_justified_css = 1, ""
     for css_line in css.splitlines():
         c_1 = len(css_line.split(":")) == 2 and css_line.strip().endswith(";")
         c_2 = "{" not in css_line and "}" not in css_line and len(css_line)
-        if c_1 and c_2:
+        c_4 = not css_line.lstrip().lower().startswith("@import ")
+        if c_1 and c_2 and c_4:
             lenght = len(css_line.split(":")[0].rstrip()) + 1
             max_indent = lenght if lenght > max_indent else max_indent
     for line_of_css in css.splitlines():
         c_1 = "{" not in line_of_css and "}" not in line_of_css
         c_2 = max_indent > 1 and len(line_of_css.split(":")) == 2
         c_3 = line_of_css.strip().endswith(";") and len(line_of_css)
-        if c_1 and c_2 and c_3:
+        c_4 = "@import " not in line_of_css
+        if c_1 and c_2 and c_3 and c_4:
             propert_len = len(line_of_css.split(":")[0].rstrip()) + 1
             xtra_spaces = " " * (max_indent + 1 - propert_len)
             xtra_spaces = ":" + xtra_spaces
@@ -293,6 +300,7 @@ def justify_right(css):
             right_justified_css += justified_line_of_css + "\n"
         else:
             right_justified_css += line_of_css + "\n"
+    log.debug("Finished Justify to the Right all CSS / SCSS Property values.")
     return right_justified_css if max_indent > 1 else css
 
 
@@ -332,7 +340,7 @@ def html_prettify(html):
     """Prettify HTML main function."""
     log.info("Prettify HTML...")
     html = BeautifulSoup(html).prettify()
-    html = html.replace("\t", "    ").rstrip("\n") + "\n\n"
+    html = html.replace("\t", "    ").strip() + "\n"
     log.info("Finished prettify HTML !.")
     return html
 
@@ -399,6 +407,7 @@ def process_single_css_file(css_file_path):
     except:  # Python2
         with open(css_file_path) as css_file:
             original_css = css_file.read()
+    log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
     pretty_css = css_prettify(original_css, justify=args.justify)
     if args.timestamp:
         taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
@@ -410,6 +419,7 @@ def process_single_css_file(css_file_path):
     except:
         with open(min_css_file_path, "w") as output_file:
             output_file.write(pretty_css)
+    log.debug("OUTPUT: Writing CSS Minified {}.".format(min_css_file_path))
 
 
 def process_single_html_file(html_file_path):
@@ -421,6 +431,7 @@ def process_single_html_file(html_file_path):
     except:  # Python2
         with open(html_file_path) as html_file:
             pretty_html = html_prettify(html_file.read())
+    log.debug("INPUT: Reading HTML file {}.".format(html_file_path))
     html_file_path = prefixer_extensioner(html_file_path)
     try:  # Python3
         with open(html_file_path, "w", encoding="utf-8") as output_file:
@@ -428,6 +439,7 @@ def process_single_html_file(html_file_path):
     except:  # Python2
         with open(html_file_path, "w") as output_file:
             output_file.write(pretty_html)
+    log.debug("OUTPUT: Writing HTML Minified {}.".format(html_file_path))
 
 
 def check_for_updates():
@@ -440,8 +452,79 @@ def check_for_updates():
         log.info("No new updates!,You have the lastest version of this app.")
 
 
-def make_arguments_parser():
-    """Build and return a command line agument parser."""
+def make_root_check_and_encoding_debug():
+    """Debug and Log Encodings and Check for root/administrator,return Boolean.
+
+    >>> make_root_check_and_encoding_debug()
+    True
+    """
+    log.info(__doc__)
+    log.debug("Python {0} on {1}.".format(python_version(), platform()))
+    log.debug("STDIN Encoding: {0}.".format(sys.stdin.encoding))
+    log.debug("STDERR Encoding: {0}.".format(sys.stderr.encoding))
+    log.debug("STDOUT Encoding:{}".format(getattr(sys.stdout, "encoding", "")))
+    log.debug("Default Encoding: {0}.".format(sys.getdefaultencoding()))
+    log.debug("FileSystem Encoding: {0}.".format(sys.getfilesystemencoding()))
+    log.debug("PYTHONIOENCODING Encoding: {0}.".format(
+        os.environ.get("PYTHONIOENCODING", None)))
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    if not sys.platform.startswith("win"):  # root check
+        if not os.geteuid():
+            log.critical("Runing as root is not Recommended,NOT Run as root!.")
+            return False
+    elif sys.platform.startswith("win"):  # administrator check
+        if getuser().lower().startswith("admin"):
+            log.critical("Runing as Administrator is not Recommended!.")
+            return False
+    return True
+
+
+def set_process_name_and_cpu_priority(name):
+    """Set process name and cpu priority.
+
+    >>> set_process_name_and_cpu_priority("test_test")
+    True
+    """
+    try:
+        os.nice(19)  # smooth cpu priority
+        libc = cdll.LoadLibrary("libc.so.6")  # set process name
+        buff = create_string_buffer(len(name.lower().strip()) + 1)
+        buff.value = bytes(name.lower().strip().encode("utf-8"))
+        libc.prctl(15, byref(buff), 0, 0, 0)
+    except Exception:
+        return False  # this may fail on windows and its normal, so be silent.
+    else:
+        log.debug("Process Name set to: {0}.".format(name))
+        return True
+
+
+def set_single_instance(name, single_instance=True, port=8888):
+    """Set process name and cpu priority, return socket.socket object or None.
+
+    >>> isinstance(set_single_instance("test"), socket.socket)
+    True
+    """
+    __lock = None
+    if single_instance:
+        try:  # Single instance app ~crossplatform, uses udp socket.
+            log.info("Creating Abstract UDP Socket Lock for Single Instance.")
+            __lock = socket.socket(
+                socket.AF_UNIX if sys.platform.startswith("linux")
+                else socket.AF_INET, socket.SOCK_STREAM)
+            __lock.bind(
+                "\0_{name}__lock".format(name=str(name).lower().strip())
+                if sys.platform.startswith("linux") else ("127.0.0.1", port))
+        except socket.error as e:
+            log.warning(e)
+        else:
+            log.info("Socket Lock for Single Instance: {}.".format(__lock))
+    else:  # if multiple instance want to touch same file bad things can happen
+        log.warning("Multiple instance on same file can cause Race Condition.")
+    return __lock
+
+
+def make_logger(name=str(os.getpid())):
+    """Build and return a Logging Logger."""
     if not sys.platform.startswith("win") and sys.stderr.isatty():
         def add_color_emit_ansi(fn):
             """Add methods we need to the class."""
@@ -474,18 +557,43 @@ def make_arguments_parser():
             return new
         # all non-Windows platforms support ANSI Colors so we use them
         log.StreamHandler.emit = add_color_emit_ansi(log.StreamHandler.emit)
-    log.basicConfig(
-        level=-1, format="%(levelname)s:%(asctime)s %(message)s", filemode="w",
-        filename=os.path.join(gettempdir(), "css-html-prettify.log"))
+    else:
+        log.debug("Colored Logs not supported on {0}.".format(sys.platform))
+    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
+    log.basicConfig(level=-1, filemode="w", filename=log_file,
+                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
+    adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
     try:
-        os.nice(19)  # smooth cpu priority
-        libc = cdll.LoadLibrary('libc.so.6')  # set process name
-        buff = create_string_buffer(len("css-html-prettify") + 1)
-        buff.value = bytes("css-html-prettify".encode("utf-8"))
-        libc.prctl(15, byref(buff), 0, 0, 0)
-    except Exception:
-        pass  # this may fail on windows and its normal, so be silent.
+        handler = log.handlers.SysLogHandler(address=adrs)
+    except:
+        log.debug("Unix SysLog Server not found,ignored Logging to SysLog.")
+    else:
+        log.addHandler(handler)
+    log.debug("Logger created with Log file at: {0}.".format(log_file))
+    return log
+
+
+def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
+    """Simple Post-Execution Message with information about RAM and Time.
+
+    >>> make_post_execution_message() >= 0
+    True
+    """
+    ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+                  resource.getpagesize() / 1024 / 1024 if resource else 0)
+    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(ram_use))
+    log.info("Total Working Time: {0}.".format(datetime.now() - start_time))
+    if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
+        print("Thanks for using this App,share your experience!{0}".format("""
+        Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
+        Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
+        G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
+    return ram_use
+
+
+def make_arguments_parser():
+    """Build and return a command line agument parser."""
     # Parse command line arguments.
     parser = ArgumentParser(description=__doc__, epilog="""CSS-HTML-Prettify:
     Takes file or folder full path string and process all CSS/SCSS/HTML found.
@@ -535,6 +643,10 @@ def only_on_py3(boolean_argument=True):
 def main():
     """Main Loop."""
     make_arguments_parser()
+    make_logger("css-html-prettify")
+    make_root_check_and_encoding_debug()
+    set_process_name_and_cpu_priority("css-html-prettify")
+    set_single_instance("css-html-prettify")
     if only_on_py3(args.checkupdates):
         check_for_updates()
     if only_on_py3(args.quiet):
@@ -571,10 +683,7 @@ def main():
     log.info('Files Processed: {}.'.format(list_of_files))
     log.info('Number of Files Processed: {}'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
-    log.info('Total Maximum RAM Memory used: ~{} MegaBytes.'.format(int(
-        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
-        resource.getpagesize() / 1024 / 1024 if resource else 0)))
-    log.info('Total Processing Time: {}.'.format(datetime.now() - start_time))
+    make_post_execution_message()
 
 
 if __name__ in '__main__':
