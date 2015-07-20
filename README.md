@@ -72,9 +72,9 @@ css-html-prettify.py /project/static/
 **WGET:**
 ```
 sudo apt-get install python3-bs4
-sudo wget -O /usr/bin/css-html-js-prettify https://raw.githubusercontent.com/juancarlospaco/css-html-js-prettify/master/css-html-js-prettify.py
-sudo chmod +x /usr/bin/css-html-js-prettify
-css-html-js-prettify
+sudo wget -O /usr/bin/css-html-prettify https://raw.githubusercontent.com/juancarlospaco/css-html-prettify/master/css-html-prettify.py
+sudo chmod +x /usr/bin/css-html-prettify
+css-html-prettify
 ```
 
 
