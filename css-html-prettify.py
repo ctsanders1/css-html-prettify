@@ -9,6 +9,7 @@ Unicode-ready Python3-ready Prettifier Beautifier for the Web.
 """
 
 
+import functools
 import itertools
 import logging as log
 import os
@@ -22,7 +23,6 @@ from datetime import datetime
 from getpass import getuser
 from multiprocessing import Pool, cpu_count
 from platform import platform, python_version
-from random import randint
 from tempfile import gettempdir
 from time import sleep
 
@@ -135,10 +135,47 @@ z-index
 
 
 ###############################################################################
+
+
+def typecheck(f):
+    """Decorator for Python3 annotations to type-check inputs and outputs."""
+    def __check_annotations(tipe):
+        _type, is_ok = None, isinstance(tipe, (type, tuple, type(None)))
+        if is_ok:  # Annotations can be Type or Tuple or None
+            _type = tipe if isinstance(tipe, tuple) else tuple((tipe, ))
+            if None in _type:  # if None on tuple replace with type(None)
+                _type = tuple([_ if _ is not None else type(_) for _ in _type])
+        return _type, is_ok
+
+    @functools.wraps(f)  # wrap a function or method to Type Check it.
+    def decorated(*args, **kwargs):
+        msg = "Type check error: {0} must be {1} but is {2} on function {3}()."
+        notations, f_name = tuple(f.__annotations__.keys()), f.__code__.co_name
+        for i, name in enumerate(f.__code__.co_varnames):
+            if name not in notations:
+                continue  # this arg name has no annotation then skip it.
+            _type, is_ok = __check_annotations(f.__annotations__.get(name))
+            if is_ok:  # Force to tuple
+                if i < len(args) and not isinstance(args[i], _type):
+                    log.critical(msg.format(repr(args[i])[:50], _type,
+                                            type(args[i]), f_name))
+                elif name in kwargs and not isinstance(kwargs[name], _type):
+                    log.critical(msg.format(repr(kwargs[name])[:50], _type,
+                                            type(kwargs[name]), f_name))
+        out = f(*args, **kwargs)
+        _type, is_ok = __check_annotations(f.__annotations__.get("return"))
+        if is_ok and not isinstance(out, _type) and "return" in notations:
+            log.critical(msg.format(repr(out)[:50], _type, type(out), f_name))
+        return out    # The output result of function or method.
+    return decorated  # The decorated function or method.
+
+
+###############################################################################
 # CSS prettify
 
 
-def _compile_props(props_text, grouped=False):
+@typecheck
+def _compile_props(props_text: str, grouped: bool=False) -> tuple:
     """Take a list of props and prepare them."""
     props = []
     for line_of_props in props_text.strip().lower().splitlines():
@@ -154,7 +191,7 @@ def _compile_props(props_text, grouped=False):
             groups.append(g_id)
         else:
             g_id += 1
-    return final_props, groups
+    return (final_props, groups)
 
 
 def _prioritify(line_buffer, pgs):
@@ -175,8 +212,8 @@ def _props_grouper(props, pgs):
     if not props:
         return props
     props = sorted([
-        _ if _.strip().endswith(";")
-        and not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        _ if _.strip().endswith(";") and
+        not _.strip().endswith("*/") and not _.strip().endswith("/*")
         else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
@@ -194,7 +231,8 @@ def _props_grouper(props, pgs):
     return props
 
 
-def sort_properties(css_unsorted_string):
+@typecheck
+def sort_properties(css_unsorted_string: str) -> str:
     """CSS Property Sorter Function.
 
     This function will read buffer argument, split it to a list by lines,
@@ -223,25 +261,29 @@ def sort_properties(css_unsorted_string):
     return sorted_buffer
 
 
-def remove_empty_rules(css):
+@typecheck
+def remove_empty_rules(css: str) -> str:
     """Remove empty rules."""
     log.debug("Removing all unnecessary empty rules.")
     return re.sub(r"[^\}\{]+\{\}", "", css)
 
 
-def condense_zero_units(css):
+@typecheck
+def condense_zero_units(css: str) -> str:
     """Replace `0(px, em, %, etc)` with `0`."""
     log.debug("Condensing all zeroes on values.")
     return re.sub(r"([\s:])(0)(px|em|rem|%|in|cm|mm|pc|pt|ex)", r"\1\2", css)
 
 
-def condense_semicolons(css):
+@typecheck
+def condense_semicolons(css: str) -> str:
     """Condense multiple adjacent semicolon characters into one."""
     log.debug("Condensing all unnecessary multiple adjacent semicolons.")
     return re.sub(r";;+", ";", css)
 
 
-def wrap_css_lines(css, line_length=80):
+@typecheck
+def wrap_css_lines(css: str, line_length: int=80) -> str:
     """Wrap the lines of the given CSS to an approximate length."""
     log.debug("Wrapping lines to ~{} max line lenght.".format(line_length))
     lines, line_start = [], 0
@@ -255,13 +297,15 @@ def wrap_css_lines(css, line_length=80):
     return "\n".join(lines)
 
 
-def add_encoding(css):
+@typecheck
+def add_encoding(css: str) -> str:
     """Add @charset 'UTF-8'; if missing."""
     log.debug("Adding encoding declaration if needed.")
     return "@charset utf-8;\n\n\n" + css if "@charset" not in css else css
 
 
-def normalize_whitespace(css):
+@typecheck
+def normalize_whitespace(css: str) -> str:
     """Normalize css string white spaces."""
     log.debug("Starting to Normalize white spaces on CSS if needed.")
     css_no_trailing_whitespace = ""
@@ -278,7 +322,8 @@ def normalize_whitespace(css):
     return css.replace("\t", "    ").rstrip() + "\n"
 
 
-def justify_right(css):
+@typecheck
+def justify_right(css: str) -> str:
     """Justify to the Right all CSS properties on the argument css string."""
     log.debug("Starting Justify to the Right all CSS / SCSS Property values.")
     max_indent, right_justified_css = 1, ""
@@ -309,7 +354,8 @@ def justify_right(css):
     return right_justified_css if max_indent > 1 else css
 
 
-def split_long_selectors(css):
+@typecheck
+def split_long_selectors(css: str) -> str:
     """Split too large CSS Selectors chained with commas if > 80 chars."""
     log.debug("Splitting too long chained selectors on CSS / SCSS.")
     result = ""
@@ -324,13 +370,15 @@ def split_long_selectors(css):
     return result
 
 
-def simple_replace(css):
+@typecheck
+def simple_replace(css: str) -> str:
     """dumb simple replacements on CSS."""
     return css.replace("}\n#", "}\n\n#").replace(
         "}\n.", "}\n\n.").replace("}\n*", "}\n\n*")
 
 
-def css_prettify(css, justify=False):
+@typecheck
+def css_prettify(css: str, justify: bool=False) -> str:
     """Prettify CSS main function."""
     log.info("Prettify CSS / SCSS...")
     css = sort_properties(css)
@@ -364,7 +412,8 @@ def prettify(self, encoding=None, formatter="minimal", indent_width=4):
 BeautifulSoup.prettify = prettify
 
 
-def html_prettify(html):
+@typecheck
+def html_prettify(html: str) -> str:
     """Prettify HTML main function."""
     log.info("Prettify HTML...")
     html = BeautifulSoup(html).prettify()
@@ -381,24 +430,24 @@ def walkdir_to_filelist(where, target, omit):
     log.debug("""Recursively Scanning {}, searching for {}, and ignoring {}.
     """.format(where, target, omit))
     return tuple([os.path.join(root, f) for root, d, files in os.walk(where)
-                  for f in files if not f.startswith('.')  # ignore hidden
-                  and not f.endswith(omit)  # not process processed file
-                  and f.endswith(target)])  # only process target files
+                  for f in files if not f.startswith('.') and  # ignore hidden
+                  not f.endswith(omit) and  # not process processed file
+                  f.endswith(target)])  # only process target files
 
 
 def process_multiple_files(file_path):
     """Process multiple CSS, HTML files with multiprocessing."""
-    log.debug("Process {} is Compressing {}.".format(os.getpid(), file_path))
+    log.debug("Process {} is Compressing {0}.".format(os.getpid(), file_path))
     if args.watch:
         previous = int(os.stat(file_path).st_mtime)
-        log.info("Process {} is Watching {}.".format(os.getpid(), file_path))
+        log.info("Process {} is Watching {0}.".format(os.getpid(), file_path))
         while True:
             actual = int(os.stat(file_path).st_mtime)
             if previous == actual:
                 sleep(60)
             else:
                 previous = actual
-                log.debug("Modification detected on {}.".format(file_path))
+                log.debug("Modification detected on {0}.".format(file_path))
                 if file_path.endswith((".css", ".scss")):
                     process_single_css_file(file_path)
                 else:
@@ -410,7 +459,8 @@ def process_multiple_files(file_path):
             process_single_html_file(file_path)
 
 
-def prefixer_extensioner(file_path):
+@typecheck
+def prefixer_extensioner(file_path: str) -> str:
     """Take a file path and safely prepend a prefix and change extension.
 
     This is needed because filepath.replace('.foo', '.bar') sometimes may
@@ -425,49 +475,37 @@ def prefixer_extensioner(file_path):
     return file_path
 
 
-def process_single_css_file(css_file_path):
+@typecheck
+def process_single_css_file(css_file_path: str) -> str:
     """Process a single CSS file."""
-    log.info("Processing CSS / SCSS file: {}".format(css_file_path))
+    log.info("Processing CSS / SCSS file: {0}".format(css_file_path))
     global args
-    try:  # Python3
-        with open(css_file_path, encoding="utf-8-sig") as css_file:
-            original_css = css_file.read()
-    except:  # Python2
-        with open(css_file_path) as css_file:
-            original_css = css_file.read()
-    log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
+    with open(css_file_path, encoding="utf-8-sig") as css_file:
+        original_css = css_file.read()
+    log.debug("INPUT: Reading CSS file {0}.".format(css_file_path))
     pretty_css = css_prettify(original_css, justify=args.justify)
     if args.timestamp:
-        taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
+        taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
         pretty_css = taim + pretty_css
     min_css_file_path = prefixer_extensioner(css_file_path)
-    try:
-        with open(min_css_file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(pretty_css)
-    except:
-        with open(min_css_file_path, "w") as output_file:
-            output_file.write(pretty_css)
-    log.debug("OUTPUT: Writing CSS Minified {}.".format(min_css_file_path))
+    with open(min_css_file_path, "w", encoding="utf-8") as output_file:
+        output_file.write(pretty_css)
+    log.debug("OUTPUT: Writing CSS Minified {0}.".format(min_css_file_path))
+    return pretty_css
 
 
-def process_single_html_file(html_file_path):
+@typecheck
+def process_single_html_file(html_file_path: str) -> str:
     """Process a single HTML file."""
-    log.info("Processing HTML file: {}".format(html_file_path))
-    try:  # Python3
-        with open(html_file_path, encoding="utf-8-sig") as html_file:
-            pretty_html = html_prettify(html_file.read())
-    except:  # Python2
-        with open(html_file_path) as html_file:
-            pretty_html = html_prettify(html_file.read())
-    log.debug("INPUT: Reading HTML file {}.".format(html_file_path))
+    log.info("Processing HTML file: {0}".format(html_file_path))
+    with open(html_file_path, encoding="utf-8-sig") as html_file:
+        pretty_html = html_prettify(html_file.read())
+    log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(html_file_path)
-    try:  # Python3
-        with open(html_file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(pretty_html)
-    except:  # Python2
-        with open(html_file_path, "w") as output_file:
-            output_file.write(pretty_html)
-    log.debug("OUTPUT: Writing HTML Minified {}.".format(html_file_path))
+    with open(html_file_path, "w", encoding="utf-8") as output_file:
+        output_file.write(pretty_html)
+    log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
+    return pretty_html
 
 
 def check_for_updates():
@@ -508,7 +546,8 @@ def make_root_check_and_encoding_debug():
     return True
 
 
-def set_process_name_and_cpu_priority(name):
+@typecheck
+def set_process_name_and_cpu_priority(name: str) -> bool:
     """Set process name and cpu priority.
 
     >>> set_process_name_and_cpu_priority("test_test")
@@ -546,7 +585,7 @@ def set_single_instance(name, single_instance=True, port=8888):
         except socket.error as e:
             log.warning(e)
         else:
-            log.info("Socket Lock for Single Instance: {}.".format(__lock))
+            log.info("Socket Lock for Single Instance: {0}.".format(__lock))
     else:  # if multiple instance want to touch same file bad things can happen
         log.warning("Multiple instance on same file can cause Race Condition.")
     return __lock
@@ -603,22 +642,31 @@ def make_logger(name=str(os.getpid())):
     return log
 
 
-def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
+@typecheck
+def make_post_execution_message(app: str=__doc__.splitlines()[0]) -> str:
     """Simple Post-Execution Message with information about RAM and Time.
 
     >>> make_post_execution_message() >= 0
     True
     """
-    ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
-                  resource.getpagesize() / 1024 / 1024 if resource else 0)
-    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(ram_use))
-    log.info("Total Working Time: {0}.".format(datetime.now() - start_time))
-    if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
-        print("Thanks for using this App,share your experience!{0}".format("""
-        Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
-        Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
-        G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
-    return ram_use
+    ram_use, ram_all = 0, 0
+    if sys.platform.startswith("linux"):
+        ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+                      resource.getpagesize() / 1024 / 1024 if resource else 0)
+        ram_all = int(
+            os.sysconf('SC_PAGE_SIZE') *
+            os.sysconf('SC_PHYS_PAGES') / 1024 / 1024
+            if hasattr(os, "sysconf") else 0)
+    msg = "Total Maximum RAM Memory used: ~{0} of {1} MegaBytes.".format(
+        ram_use, ram_all)
+    log.info(msg)
+    if start_time and datetime:
+        log.info("Total Working Time: {0}".format(datetime.now() - start_time))
+    print("Thanks for using this App,share your experience!{0}".format("""
+    Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
+    Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
+    G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
+    return msg
 
 
 def make_arguments_parser():
@@ -655,20 +703,6 @@ def make_arguments_parser():
     args = parser.parse_args()
 
 
-def only_on_py3(boolean_argument=True):
-    """Deprecate features if not using Python >= 3, to motivate migration."""
-    if isinstance(boolean_argument, (tuple, list)):  # argument is iterable.
-        boolean_argument = all(boolean_argument)
-    else:  # argument is boolean, or evaluate as boolean, even if is not.
-        boolean_argument = bool(boolean_argument)
-    if sys.version_info.major >= 3:
-        return boolean_argument  # good to go
-    else:  # Migrate to python 3, is free and easy, get a virtualenv at least.
-        log.critical("Feature only available on Python 3, feature ignored !.")
-        log.debug("Please Migrate to Python 3 for better User Experience...")
-        return False
-
-
 def main():
     """Main Loop."""
     make_arguments_parser()
@@ -676,12 +710,12 @@ def main():
     make_root_check_and_encoding_debug()
     set_process_name_and_cpu_priority("css-html-prettify")
     set_single_instance("css-html-prettify")
-    if only_on_py3(args.checkupdates):
+    if args.checkupdates:
         check_for_updates()
-    if only_on_py3(args.quiet):
+    if args.quiet:
         log.disable(log.CRITICAL)
     log.info(__doc__ + __version__)
-    if only_on_py3((args.before, getoutput)):
+    if args.before and getoutput:
         log.info(getoutput(str(args.before)))
     # Work based on if argument is file or folder, folder is slower.
     if os.path.isfile(args.fullpath
@@ -706,11 +740,11 @@ def main():
     else:
         log.critical("File or folder not found,or cant be read,or I/O Error.")
         sys.exit(1)
-    if only_on_py3((args.after, getoutput)):
+    if args.after and getoutput:
         log.info(getoutput(str(args.after)))
     log.info('-' * 80)
-    log.info('Files Processed: {}.'.format(list_of_files))
-    log.info('Number of Files Processed: {}'.format(
+    log.info('Files Processed: {0}.'.format(list_of_files))
+    log.info('Number of Files Processed: {0}'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
     make_post_execution_message()
 
