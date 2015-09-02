@@ -39,13 +39,13 @@ except ImportError:
     request = getoutput = resource = None
 
 
-__version__ = "1.0.0"
-__license__ = "GPLv3+ LGPLv3+"
-__author__ = "Juan Carlos"
-__email__ = "juancarlospaco@gmail.com"
-__url__ = "https://github.com/juancarlospaco/css-html-prettify"
-__source__ = ("https://raw.githubusercontent.com/juancarlospaco/"
-              "css-html-prettify/master/css-html-prettify.py")
+__version__ = '1.0.0'
+__license__ = 'GPLv3+ LGPLv3+'
+__author__ = 'Juan Carlos'
+__email__ = 'juancarlospaco@gmail.com'
+__url__ = 'https://github.com/juancarlospaco/css-html-prettify'
+__source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
+              'css-html-prettify/master/css-html-prettify.py')
 
 
 start_time = datetime.now()
