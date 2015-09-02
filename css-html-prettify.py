@@ -194,16 +194,19 @@ def _compile_props(props_text: str, grouped: bool=False) -> tuple:
     return (final_props, groups)
 
 
-def _prioritify(line_buffer, pgs):
+@typecheck
+def _prioritify(line_of_css: str, css_props_text_as_list: tuple) -> tuple:
     """Return args priority, priority is integer and smaller means higher."""
-    props, groups = pgs
-    priority, group = 9999, 0
-    for css_property in props:
-        if line_buffer.find(css_property + ':') != -1:
-            priority = props.index(css_property)
-            group = groups[priority]
+    sorted_css_properties, groups_by_alphabetic_order = css_props_text_as_list
+    priority_integer, group_integer = 9999, 0
+    for css_property in sorted_css_properties:
+        if css_property.lower() == line_of_css.split(":")[0].lower().strip():
+            priority_integer = sorted_css_properties.index(css_property)
+            group_integer = groups_by_alphabetic_order[priority_integer]
+            log.debug("Line of CSS: '{0}', Priority for Sorting: #{1}.".format(
+                line_of_css[:80].strip(), priority_integer))
             break
-    return priority, group
+    return (priority_integer, group_integer)
 
 
 def _props_grouper(props, pgs):
@@ -211,10 +214,10 @@ def _props_grouper(props, pgs):
     log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
-    props = sorted([
-        _ if _.strip().endswith(";") and
-        not _.strip().endswith("*/") and not _.strip().endswith("/*")
-        else _.rstrip() + ";\n" for _ in props])
+    #props = sorted([
+        #_ if _.strip().endswith(";") and
+        #not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        #else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
