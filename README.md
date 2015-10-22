@@ -170,7 +170,7 @@ css-html-prettify
 
 # Licence:
 
-- GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence [YOU Request via Bug Report](https://github.com/juancarlospaco/css-html-js-minify/issues/new).
+- GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence [YOU Request via Bug Report](https://github.com/juancarlospaco/css-html-prettify/issues/new).
 
 
 Donate, Charityware :
