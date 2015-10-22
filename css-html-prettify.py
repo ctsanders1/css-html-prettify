@@ -387,7 +387,7 @@ def simple_replace(css: str) -> str:
 
 
 @typecheck
-def css_prettify(css: str, justify: bool=False) -> str:
+def css_prettify(css: str, justify: bool=False, extraline: bool=False) -> str:
     """Prettify CSS main function."""
     log.info("Prettify CSS / SCSS...")
     css = sort_properties(css)
@@ -399,6 +399,8 @@ def css_prettify(css: str, justify: bool=False) -> str:
     css = justify_right(css) if justify else css
     css = add_encoding(css)
     css = simple_replace(css)
+    if extraline:
+        css = "\n\n".join(css.replace("\t", "    ").splitlines()) + "\n"
     log.info("Finished Prettify CSS / SCSS !.")
     return css
 
@@ -422,11 +424,12 @@ BeautifulSoup.prettify = prettify
 
 
 @typecheck
-def html_prettify(html: str) -> str:
+def html_prettify(html: str, extraline: bool=False) -> str:
     """Prettify HTML main function."""
     log.info("Prettify HTML...")
     html = BeautifulSoup(html).prettify()
-    html = html.replace("\t", "    ").strip() + "\n"
+    if extraline:
+        html = "\n\n".join(html.replace("\t", "    ").splitlines()) + "\n"
     log.info("Finished prettify HTML !.")
     return html
 
@@ -492,7 +495,7 @@ def process_single_css_file(css_file_path: str) -> str:
     with open(css_file_path, encoding="utf-8-sig") as css_file:
         original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {0}.".format(css_file_path))
-    pretty_css = css_prettify(original_css, justify=args.justify)
+    pretty_css = css_prettify(original_css, args.justify, args.extraline)
     if args.timestamp:
         taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
         pretty_css = taim + pretty_css
@@ -508,7 +511,7 @@ def process_single_html_file(html_file_path: str) -> str:
     """Process a single HTML file."""
     log.info("Processing HTML file: {0}".format(html_file_path))
     with open(html_file_path, encoding="utf-8-sig") as html_file:
-        pretty_html = html_prettify(html_file.read())
+        pretty_html = html_prettify(html_file.read(), args.extraline)
     log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(html_file_path)
     with open(html_file_path, "w", encoding="utf-8") as output_file:
@@ -708,6 +711,8 @@ def make_arguments_parser():
                         help="Group Alphabetically CSS Poperties by name.")
     parser.add_argument('--justify', action='store_true',
                         help="Right Justify CSS Properties (Experimental).")
+    parser.add_argument('--extraline', action='store_true',
+                        help="Add 1 New Line for each New Line (Experimental)")
     global args
     args = parser.parse_args()
 
