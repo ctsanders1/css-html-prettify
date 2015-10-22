@@ -4,8 +4,7 @@
 
 """CSS-HTML-Prettify.
 
-StandAlone Async single-file cross-platform no-dependencies
-Unicode-ready Python3-ready Prettifier Beautifier for the Web.
+StandAlone Async single-file cross-platform Prettifier Beautifier for the Web.
 """
 
 
@@ -16,6 +15,7 @@ import os
 import re
 import socket
 import sys
+
 from argparse import ArgumentParser
 from copy import copy
 from ctypes import byref, cdll, create_string_buffer
@@ -39,7 +39,7 @@ except ImportError:
     request = getoutput = resource = None
 
 
-__version__ = '1.2.0'
+__version__ = '1.2.2'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
@@ -522,10 +522,9 @@ def process_single_html_file(html_file_path: str) -> str:
 
 def check_for_updates():
     """Method to check for updates from Git repo versus this version."""
-    this_version = str(open(__file__).read())
     last_version = str(request.urlopen(__source__).read().decode("utf8"))
-    if this_version != last_version:
-        log.warning("Theres new Version available!,Update from " + __source__)
+    if str(open(__file__).read()) != last_version:
+        log.warning("Theres new Version available!, Update from " + __source__)
     else:
         log.info("No new updates!,You have the lastest version of this app.")
 
@@ -545,8 +544,7 @@ def make_root_check_and_encoding_debug():
     log.debug("FileSystem Encoding: {0}.".format(sys.getfilesystemencoding()))
     log.debug("PYTHONIOENCODING Encoding: {0}.".format(
         os.environ.get("PYTHONIOENCODING", None)))
-    os.environ["PYTHONIOENCODING"] = "utf-8"
-    sys.dont_write_bytecode = True
+    os.environ["PYTHONIOENCODING"], sys.dont_write_bytecode = "utf-8", True
     if not sys.platform.startswith("win"):  # root check
         if not os.geteuid():
             log.critical("Runing as root is not Recommended,NOT Run as root!.")
@@ -579,11 +577,7 @@ def set_process_name_and_cpu_priority(name: str) -> bool:
 
 
 def set_single_instance(name, single_instance=True, port=8888):
-    """Set process name and cpu priority, return socket.socket object or None.
-
-    >>> isinstance(set_single_instance("test"), socket.socket)
-    True
-    """
+    """Set process name and cpu priority,return socket.socket object or None"""
     __lock = None
     if single_instance:
         try:  # Single instance app ~crossplatform, uses udp socket.
@@ -598,8 +592,6 @@ def set_single_instance(name, single_instance=True, port=8888):
             log.warning(e)
         else:
             log.info("Socket Lock for Single Instance: {0}.".format(__lock))
-    else:  # if multiple instance want to touch same file bad things can happen
-        log.warning("Multiple instance on same file can cause Race Condition.")
     return __lock
 
 
@@ -654,30 +646,22 @@ def make_logger(name=str(os.getpid())):
     return log
 
 
-@typecheck
-def make_post_execution_message(app: str=__doc__.splitlines()[0]) -> str:
-    """Simple Post-Execution Message with information about RAM and Time.
-
-    >>> make_post_execution_message() >= 0
-    True
-    """
+def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
+    """Simple Post-Execution Message with information about RAM and Time."""
     ram_use, ram_all = 0, 0
     if sys.platform.startswith("linux"):
-        ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
-                      resource.getpagesize() / 1024 / 1024 if resource else 0)
-        ram_all = int(
-            os.sysconf('SC_PAGE_SIZE') *
-            os.sysconf('SC_PHYS_PAGES') / 1024 / 1024
-            if hasattr(os, "sysconf") else 0)
-    msg = "Total Maximum RAM Memory used: ~{0} of {1} MegaBytes.".format(
-        ram_use, ram_all)
+        use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+                    resource.getpagesize() / 1024 / 1024 if resource else 0)
+        al = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+                      / 1024 / 1024 if hasattr(os, "sysconf") else 0)
+    msg = "Total Maximum RAM Memory used: ~{0} of {1}MegaBytes".format(use, al)
     log.info(msg)
     if start_time and datetime:
         log.info("Total Working Time: {0}".format(datetime.now() - start_time))
-    print("Thanks for using this App,share your experience!{0}".format("""
-    Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
-    Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
-    G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
+        print("Thanks for using this App,share your experience! {0}".format("""
+        Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
+        Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
+        G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
     return msg
 
 
@@ -724,16 +708,13 @@ def main():
     make_root_check_and_encoding_debug()
     set_process_name_and_cpu_priority("css-html-prettify")
     set_single_instance("css-html-prettify")
-    if args.checkupdates:
-        check_for_updates()
-    if args.quiet:
-        log.disable(log.CRITICAL)
+    check_for_updates() if args.checkupdates else log.debug("No Check Updates")
+    log.disable(log.CRITICAL) if args.quiet else log.debug("Max Logging ON")
     log.info(__doc__ + __version__)
     if args.before and getoutput:
         log.info(getoutput(str(args.before)))
-    # Work based on if argument is file or folder, folder is slower.
-    if os.path.isfile(args.fullpath
-                      ) and args.fullpath.endswith((".css", ".scss")):
+    if os.path.isfile(args.fullpath) and args.fullpath.endswith(
+        (".css", ".scss")):  # Work based on if argument is file or folder.
         log.info("Target is a CSS / SCSS File.")
         list_of_files = str(args.fullpath)
         process_single_css_file(args.fullpath)
@@ -756,8 +737,7 @@ def main():
         sys.exit(1)
     if args.after and getoutput:
         log.info(getoutput(str(args.after)))
-    log.info('-' * 80)
-    log.info('Files Processed: {0}.'.format(list_of_files))
+    log.info('\n {0} \n Files Processed: {1}.'.format('-' * 80, list_of_files))
     log.info('Number of Files Processed: {0}'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
     make_post_execution_message()
