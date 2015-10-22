@@ -31,6 +31,7 @@ optional arguments:
     --watch          Re-Compress if file changes (Experimental).
     --group          Group Alphabetically CSS Poperties by name.
     --justify        Right Justify CSS Properties (Experimental).
+    --extraline      Add 1 New Line for each New Line (Experimental)
 
 CSS-HTML-Prettify: Takes file or folder full path string and process all
 CSS/SCSS/HTML found. If argument is not file/folder will fail. Check Updates
@@ -68,6 +69,10 @@ css-html-prettify.py /project/static/
 
 # Install permanently on the system:
 
+**PIP:** *(Recommended!)*
+```
+sudo pip3 install css-html-prettify
+```
 
 **WGET:**
 ```
@@ -76,6 +81,10 @@ sudo wget -O /usr/bin/css-html-prettify https://raw.githubusercontent.com/juanca
 sudo chmod +x /usr/bin/css-html-prettify
 css-html-prettify
 ```
+
+**MANUALLY:**
+
+- Save [this file](https://raw.githubusercontent.com/juancarlospaco/css-html-prettify/master/css-html-prettify.py) and run it with Python.
 
 
 **Input CSS:**
@@ -142,24 +151,26 @@ css-html-prettify
 
 # Requisites:
 
-- [Python 3.x](https://www.python.org "Python Homepage") *(or Python 2.x, or PyPy 2.x, or PyPy 3.x)*
+- [Python 3.x](https://www.python.org "Python Homepage") *(or PyPy 3.x, or Python Nightly)*
 - BeautifulSoup 4.
 
 
 # Coding Style Guide:
 
-- Lint, PEP-8, PEP-257, PyLama, iSort must Pass Ok. `pip install pep8 pep257 pylama isort`
+- Lint, [PEP-8](https://www.python.org/dev/peps/pep-0008), [PEP-257](https://www.python.org/dev/peps/pep-0257), [PyLama](https://github.com/klen/pylama#-pylama), [iSort](https://github.com/timothycrosley/isort) must Pass Ok. `pip install pep8 pep257 pylama isort`
+- If theres any kind of Tests, they must Pass Ok, if theres no Tests, its ok, if Tests provided, is even better.
 
 
 # Contributors:
 
+- **Please Star this Repo on Github !**, it helps to show up faster on searchs.
 - **Ad-Hocracy Meritocracy**: 3 Pull Requests Merged on Master you become Repo Admin. *Join us!*
 - [Help](https://help.github.com/articles/using-pull-requests) and more [Help](https://help.github.com/articles/fork-a-repo) and Interactive Quick [Git Tutorial](https://try.github.io).
 
 
 # Licence:
 
-- GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence YOU Request via Bug Report.
+- GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence [YOU Request via Bug Report](https://github.com/juancarlospaco/css-html-js-minify/issues/new).
 
 
 Donate, Charityware :
