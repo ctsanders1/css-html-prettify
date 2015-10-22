@@ -56,24 +56,27 @@ animation-direction animation-duration animation-iteration-count
 animation-name animation-play-state animation-timing-function appearance
 azimuth
 
-backface-visibility background background-attachment background-clip
-background-color background-image background-origin background-position
-background-repeat background-size baseline-shift bikeshedding bookmark-label
-bookmark-level bookmark-state bookmark-target border border-bottom
-border-bottom-color border-bottom-left-radius border-bottom-right-radius
-border-bottom-style border-bottom-width border-collapse border-color
-border-image border-image-outset border-image-repeat border-image-slice
-border-image-source border-image-width border-left border-left-color
-border-left-style border-left-width border-radius border-right
-border-right-color border-right-style border-right-width border-spacing
-border-style border-top border-top-color border-top-left-radius
-border-top-right-radius border-top-style border-top-width border-width bottom
-box-decoration-break box-shadow box-sizing
-
-caption-side clear clip color column-count column-fill column-gap column-rule
+backface-visibility background background-blend-mode background-attachment
+background-clip background-color background-image background-origin
+background-position background-position-block background-position-inline
+background-position-x background-position-y background-repeat background-size
+baseline-shift bikeshedding bookmark-label bookmark-level bookmark-state
+bookmark-target border border-bottom border-bottom-color
+border-bottom-left-radius border-bottom-parts border-bottom-right-radius
+border-bottom-style border-bottom-width border-clip border-clip-top
+border-clip-right border-clip-bottom border-clip-left border-collapse
+border-color border-corner-shape border-image border-image-outset
+border-image-repeat border-image-slice border-image-source border-image-width
+border-left border-left-color border-left-style border-left-parts
+border-left-width border-limit border-parts border-radius border-right
+border-right-color border-right-style border-right-width border-right-parts
+border-spacing border-style border-top border-top-color border-top-left-radius
+border-top-parts border-top-right-radius border-top-style border-top-width
+border-width bottom box-decoration-break box-shadow box-sizing caption-side
+clear clip color column-count column-fill column-gap column-rule
 column-rule-color column-rule-style column-rule-width column-span column-width
-columns content counter-increment counter-reset cue cue-after cue-before
-cursor
+columns content counter-increment counter-reset corners corner-shape
+cue cue-after cue-before cursor
 
 direction display drop-initial-after-adjust drop-initial-after-align
 drop-initial-before-adjust drop-initial-before-align drop-initial-size
@@ -81,10 +84,13 @@ drop-initial-value
 
 elevation empty-cells
 
-fit fit-position float font font-family font-size font-size-adjust
-font-stretch font-style font-variant font-weight
+flex flex-basis flex-direction flex-flow flex-grow flex-shrink flex-wrap fit
+fit-position float font font-family font-size font-size-adjust font-stretch
+font-style font-variant font-weight
 
 grid-columns grid-rows
+
+justify-content
 
 hanging-punctuation height hyphenate-character hyphenate-resource hyphens
 
@@ -131,7 +137,7 @@ white-space widows width word-break word-spacing word-wrap
 
 z-index
 
-'''
+'''  # Do Not compact this string, new lines are used to Group up stuff.
 
 
 ###############################################################################
@@ -177,13 +183,13 @@ def typecheck(f):
 @typecheck
 def _compile_props(props_text: str, grouped: bool=False) -> tuple:
     """Take a list of props and prepare them."""
-    props = []
-    for line_of_props in props_text.strip().lower().splitlines():
-        props += line_of_props.split(" ")
+    props, prefixes = [], "-webkit-,-khtml-,-epub-,-moz-,-ms-,-o-,".split(",")
+    for propline in props_text.strip().lower().splitlines():
+        props += [pre + pro for pro in propline.split(" ") for pre in prefixes]
     props = filter(lambda line: not line.startswith('#'), props)
     if not grouped:
         props = list(filter(None, props))
-        return props, [0]*len(props)
+        return props, [0] * len(props)
     final_props, groups, g_id = [], [], 0
     for prop in props:
         if prop.strip():
