@@ -72,8 +72,9 @@ border-left-width border-limit border-parts border-radius border-right
 border-right-color border-right-style border-right-width border-right-parts
 border-spacing border-style border-top border-top-color border-top-left-radius
 border-top-parts border-top-right-radius border-top-style border-top-width
-border-width bottom box-decoration-break box-shadow box-sizing caption-side
-clear clip color column-count column-fill column-gap column-rule
+border-width bottom box-decoration-break box-shadow box-sizing
+
+caption-side clear clip color column-count column-fill column-gap column-rule
 column-rule-color column-rule-style column-rule-width column-span column-width
 columns content counter-increment counter-reset corners corner-shape
 cue cue-after cue-before cursor
