@@ -39,7 +39,7 @@ except ImportError:
     request = getoutput = resource = None
 
 
-__version__ = '1.2.2'
+__version__ = '1.4.0'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
@@ -282,7 +282,8 @@ def remove_empty_rules(css: str) -> str:
 def condense_zero_units(css: str) -> str:
     """Replace `0(px, em, %, etc)` with `0`."""
     log.debug("Condensing all zeroes on values.")
-    return re.sub(r"([\s:])(0)(px|em|rem|%|in|cm|mm|pc|pt|ex)", r"\1\2", css)
+    return re.sub(r"([\s:])(0)(px|em|%|in|q|ch|cm|mm|pc|pt|ex|rem|s|ms|"
+                  r"deg|grad|rad|turn|vw|vh|vmin|vmax|fr)", r"\1\2", css)
 
 
 @typecheck
@@ -295,7 +296,7 @@ def condense_semicolons(css: str) -> str:
 @typecheck
 def wrap_css_lines(css: str, line_length: int=80) -> str:
     """Wrap the lines of the given CSS to an approximate length."""
-    log.debug("Wrapping lines to ~{} max line lenght.".format(line_length))
+    log.debug("Wrapping lines to ~{0} max line lenght.".format(line_length))
     lines, line_start = [], 0
     for i, char in enumerate(css):
         # Its safe to break after } characters.
