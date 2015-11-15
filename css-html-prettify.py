@@ -650,7 +650,7 @@ def make_logger(name=str(os.getpid())):
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     """Simple Post-Execution Message with information about RAM and Time."""
-    ram_use, ram_all = 0, 0
+    use, al = 0, 0
     if sys.platform.startswith("linux"):
         use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
                     resource.getpagesize() / 1024 / 1024 if resource else 0)
