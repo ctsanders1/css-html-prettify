@@ -10,27 +10,19 @@ StandAlone Async single-file cross-platform Prettifier Beautifier for the Web.
 
 import base64
 import codecs
-import functools
-import gzip
 import itertools
 import logging as log
 import os
 import re
-import socket
 import sys
-import traceback
 import zlib
-import binascii
 
 from argparse import ArgumentParser
-from copy import copy
-from ctypes import byref, cdll, create_string_buffer
 from datetime import datetime
-from getpass import getuser
 from multiprocessing import cpu_count, Pool
-from platform import platform, python_version
-from tempfile import gettempdir
 from time import sleep
+
+import binascii
 
 try:
     from bs4 import BeautifulSoup
@@ -208,10 +200,10 @@ def _props_grouper(props, pgs):
     log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
-    #props = sorted([
-        #_ if _.strip().endswith(";") and
-        #not _.strip().endswith("*/") and not _.strip().endswith("/*")
-        #else _.rstrip() + ";\n" for _ in props])
+    # props = sorted([
+        # _ if _.strip().endswith(";") and
+        # not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        # else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
@@ -529,7 +521,7 @@ def main():
     if args.before and getoutput:
         log.info(getoutput(str(args.before)))
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(
-        (".css", ".scss")):  # Work based on if argument is file or folder.
+            (".css", ".scss")):  # Work based on if argument is file or folder.
         log.info("Target is a CSS / SCSS File.")
         list_of_files = str(args.fullpath)
         process_single_css_file(args.fullpath)
