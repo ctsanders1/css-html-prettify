@@ -18,7 +18,6 @@ from argparse import ArgumentParser
 from datetime import datetime
 from multiprocessing import cpu_count, Pool
 from time import sleep
-from urllib import request
 from subprocess import getoutput
 
 try:
@@ -497,7 +496,7 @@ def main():
     log = make_logger("css-html-prettify")  # AutoMagically make a Logger Log
     check_encoding()  # AutoMagically Check Encodings/root
     set_process_name("css-html-prettify")  # set Name
-    set_single_instance("css-html-prettify")  # AutoMagically set Single Instance
+    set_single_instance("css-html-prettify")  # Auto set Single Instance
     set_terminal_title("css-html-prettify")
     log.disable(log.CRITICAL) if args.quiet else log.debug("Max Logging ON.")
     log.info(__doc__ + __version__)
