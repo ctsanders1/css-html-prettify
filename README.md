@@ -145,6 +145,7 @@ sudo pip3 install css-html-prettify
 
 - [Python 3.x](https://www.python.org "Python Homepage")
 - BeautifulSoup 4.
+- Anglerfish.
 
 
 # Coding Style Guide:
