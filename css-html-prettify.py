@@ -42,6 +42,7 @@ __source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
               'css-html-prettify/master/css-html-prettify.py')
 
 
+start_time = datetime.now()
 CSS_PROPS_TEXT = '''
 
 alignment-adjust alignment-baseline animation animation-delay
@@ -165,15 +166,15 @@ def _prioritify(line_of_css: str, css_props_text_as_list: tuple) -> tuple:
         if css_property.lower() == line_of_css.split(":")[0].lower().strip():
             priority_integer = sorted_css_properties.index(css_property)
             group_integer = groups_by_alphabetic_order[priority_integer]
-            log.debug("Line of CSS: '{0}', Priority for Sorting: #{1}.".format(
-                line_of_css[:80].strip(), priority_integer))
+            # log.debug("Line of CSS:'{0}',Priority for Sorting: #{1}.".format(
+            #    line_of_css[:80].strip(), priority_integer))
             break
     return (priority_integer, group_integer)
 
 
 def _props_grouper(props, pgs):
     """Return groups for properties."""
-    log.debug("Grouping all CSS / SCSS Properties.")
+    # log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
     # props = sorted([
@@ -532,7 +533,7 @@ def main():
     log.info('Number of Files Processed: {0}'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
     set_terminal_title()
-    make_post_exec_msg("css-html-prettify")
+    make_post_exec_msg(start_time, "css-html-prettify")
 
 
 if __name__ in '__main__':
