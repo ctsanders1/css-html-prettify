@@ -8,6 +8,7 @@ StandAlone Async single-file cross-platform Prettifier Beautifier for the Web.
 """
 
 
+import atexit
 import itertools
 import os
 import re
@@ -481,6 +482,8 @@ def make_arguments_parser():
                         help="Right Justify CSS Properties (Experimental).")
     parser.add_argument('--extraline', action='store_true',
                         help="Add 1 New Line for each New Line (Experimental)")
+    parser.add_argument('--beep', action='store_true',
+                        help="Beep sound will be played when it ends at exit.")
     global args
     args = parser.parse_args()
     return args
@@ -497,6 +500,8 @@ def main():
     set_terminal_title("css-html-prettify")
     log.disable(log.CRITICAL) if args.quiet else log.debug("Max Logging ON.")
     log.info(__doc__ + __version__)
+    check_folder(os.path.dirname(args.fullpath))
+    atexit.register(beep) if args.beep else log.debug("Beep sound at exit OFF")
     if args.before and getoutput:
         log.info(getoutput(str(args.before)))
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(
