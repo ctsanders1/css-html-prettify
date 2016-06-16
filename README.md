@@ -36,6 +36,7 @@ optional arguments:
     --group          Group Alphabetically CSS Poperties by name.
     --justify        Right Justify CSS Properties (Experimental).
     --extraline      Add 1 New Line for each New Line (Experimental)
+    --beep           Beep sound will be played when it ends at exit.
 
 CSS-HTML-Prettify: Takes file or folder full path string and process all
 CSS/SCSS/HTML found. If argument is not file/folder will fail. Check Updates
@@ -48,7 +49,6 @@ not. Watch works for whole folders, with minimum of ~60 Secs between runs.
 - If full path is a folder with multiple files it will use Async Multiprocessing.
 - Pretty-Printed colored Logging to Standard Output and Log File on OS Temporary Folder.
 - Set its own Process name and show up on Process lists.
-- Can check for updates for itself.
 - Full Unicode/UTF-8 support, SASS SCSS Support.
 - Smooth CPU usage.
 - Can Watch for changes on files.
@@ -77,18 +77,6 @@ css-html-prettify.py /project/static/
 ```
 sudo pip3 install css-html-prettify
 ```
-
-**WGET:**
-```
-sudo apt-get install python3-bs4
-sudo wget -O /usr/bin/css-html-prettify https://raw.githubusercontent.com/juancarlospaco/css-html-prettify/master/css-html-prettify.py
-sudo chmod +x /usr/bin/css-html-prettify
-css-html-prettify
-```
-
-**MANUALLY:**
-
-- Save [this file](https://raw.githubusercontent.com/juancarlospaco/css-html-prettify/master/css-html-prettify.py) and run it with Python.
 
 
 **Input CSS:**
@@ -155,8 +143,9 @@ css-html-prettify
 
 # Requisites:
 
-- [Python 3.x](https://www.python.org "Python Homepage") *(or PyPy 3.x, or Python Nightly)*
+- [Python 3.x](https://www.python.org "Python Homepage")
 - BeautifulSoup 4.
+- Anglerfish.
 
 
 # Coding Style Guide:
