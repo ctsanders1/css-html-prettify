@@ -4,7 +4,7 @@
 
 """CSS-HTML-Prettify.
 
-StandAlone Async single-file cross-platform Prettifier Beautifier for the Web.
+StandAlone Async cross-platform Prettifier Beautifier for the Web.
 """
 
 
