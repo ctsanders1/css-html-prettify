@@ -43,7 +43,6 @@ from setuptools import setup
 MODULE_PATH = os.path.join(os.path.dirname(__file__), "css-html-prettify.py")
 DESCRIPTION = ("StandAlone Async cross-platform Unicode-ready "
                "Python3 Prettifier Beautifier for the Web.")
-REQUIREMENTS_FILE = os.path.join(os.path.dirname(__file__), "requirements.txt")
 
 
 ##############################################################################
@@ -64,35 +63,6 @@ def find_this(search, source=SOURCE):
         what=search), re.S).match(source).group(1)).strip().replace("'", "")
 
 
-def parse_requirements(path=REQUIREMENTS_FILE):
-    """Rudimentary parser for the requirements.txt file.
-
-    We just want to separate regular packages from links to pass them to the
-    'install_requires' and 'dependency_links' params of the 'setup()'.
-    """
-    print("Parsing Requirements from file {what}.".format(what=path))
-    pkgs, links = ["pip"], []
-    if not os.path.isfile(path):
-        return pkgs, links
-    try:
-        requirements = map(str.strip, path.splitlines())
-    except Exception as reason:
-        print(reason)
-        return pkgs, links
-    for req in requirements:
-        if not req:
-            continue
-        if 'http://' in req.lower() or 'https://' in req.lower():
-            links.append(req)
-            name, version = re.findall("\#egg=([^\-]+)-(.+$)", req)[0]
-            pkgs.append('{package}=={ver}'.format(package=name, ver=version))
-        else:
-            pkgs.append(req)
-    print("Requirements found: {what}.".format(what=(pkgs, links)))
-    return pkgs, links
-
-
-install_requires_list, dependency_links_list = parse_requirements()
 print("Starting build of setuptools.setup().")
 
 
@@ -119,10 +89,10 @@ setup(
     include_package_data=True,
     zip_safe=True,
 
+    install_requires=['anglerfish'],
+    setup_requires=['anglerfish'],
+    tests_require=['anglerfish'],
     requires=['anglerfish', 'beautifulsoup4'],
-
-    install_requires=install_requires_list,
-    dependency_links=dependency_links_list,
 
     scripts=["css-html-prettify.py"],
 
