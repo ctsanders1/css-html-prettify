@@ -33,7 +33,10 @@ import os
 import re
 import sys
 
-from setuptools import setup
+from setuptools import setup, Command
+from tempfile import TemporaryDirectory
+from shutil import copytree
+from zipapp import create_archive
 
 
 ##############################################################################
@@ -61,6 +64,18 @@ def find_this(search, source=SOURCE):
         return ""
     return str(re.compile(r".*__{what}__ = '(.*?)'".format(
         what=search), re.S).match(source).group(1)).strip().replace("'", "")
+
+
+class ZipApp(Command):
+    description, user_options = "Creates a zipapp.", []
+
+    def initialize_options(self): pass  # Dont needed, but required.
+
+    def finalize_options(self): pass  # Dont needed, but required.
+
+    def run(self):
+        return create_archive("css-html-prettify.py", "css-html-prettify.pyz",
+                              "/usr/bin/env python3")
 
 
 print("Starting build of setuptools.setup().")
@@ -97,6 +112,8 @@ setup(
     scripts=["css-html-prettify.py"],
 
     keywords=['CSS', 'HTML', 'Prettify', 'CSS3', 'HTML5', 'Web', 'Beautify'],
+
+    cmdclass={"zipapp": ZipApp},
 
     classifiers=[
 
