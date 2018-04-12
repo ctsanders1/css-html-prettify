@@ -8,7 +8,6 @@ StandAlone Async cross-platform Prettifier Beautifier for the Web.
 """
 
 
-import atexit
 import itertools
 import os
 import re
@@ -24,12 +23,6 @@ try:
     from bs4 import BeautifulSoup
 except ImportError:
     print("BeautifulSoup4 Not Found, use: pip install BeautifulSoup4")
-
-
-from anglerfish import (check_encoding, check_folder, make_logger,
-                        make_post_exec_msg, set_process_name,
-                        set_single_instance, walk2list, beep,
-                        set_terminal_title)
 
 
 __version__ = '2.5.0'
@@ -453,8 +446,6 @@ def make_arguments_parser():
                         help="Right Justify CSS Properties (Experimental).")
     parser.add_argument('--extraline', action='store_true',
                         help="Add 1 New Line for each New Line (Experimental)")
-    parser.add_argument('--beep', action='store_true',
-                        help="Beep sound will be played when it ends at exit.")
     global args
     args = parser.parse_args()
     return args
