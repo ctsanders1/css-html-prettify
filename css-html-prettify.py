@@ -160,15 +160,12 @@ def _prioritify(line_of_css: str, css_props_text_as_list: tuple) -> tuple:
         if css_property.lower() == line_of_css.split(":")[0].lower().strip():
             priority_integer = sorted_css_properties.index(css_property)
             group_integer = groups_by_alphabetic_order[priority_integer]
-            # log.debug("Line of CSS:'{0}',Priority for Sorting: #{1}.".format(
-            #    line_of_css[:80].strip(), priority_integer))
             break
     return (priority_integer, group_integer)
 
 
 def _props_grouper(props, pgs):
     """Return groups for properties."""
-    # log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
     # props = sorted([
@@ -198,7 +195,6 @@ def sort_properties(css_unsorted_string: str) -> str:
     sort it by defined rule, and return sorted buffer if it's CSS property.
     This function depends on '_prioritify' function.
     """
-    log.debug("Alphabetically Sorting all CSS / SCSS Properties.")
     css_pgs = _compile_props(CSS_PROPS_TEXT, grouped=bool(args.group))
     pattern = re.compile(r'(.*?{\r?\n?)(.*?)(}.*?)|(.*)',
                          re.DOTALL + re.MULTILINE)
@@ -222,26 +218,23 @@ def sort_properties(css_unsorted_string: str) -> str:
 
 def remove_empty_rules(css: str) -> str:
     """Remove empty rules."""
-    log.debug("Removing all unnecessary empty rules.")
     return re.sub(r"[^\}\{]+\{\}", "", css)
 
 
 def condense_zero_units(css: str) -> str:
     """Replace `0(px, em, %, etc)` with `0`."""
-    log.debug("Condensing all zeroes on values.")
     return re.sub(r"([\s:])(0)(px|em|%|in|q|ch|cm|mm|pc|pt|ex|rem|s|ms|"
                   r"deg|grad|rad|turn|vw|vh|vmin|vmax|fr)", r"\1\2", css)
 
 
 def condense_semicolons(css: str) -> str:
     """Condense multiple adjacent semicolon characters into one."""
-    log.debug("Condensing all unnecessary multiple adjacent semicolons.")
     return re.sub(r";;+", ";", css)
 
 
 def wrap_css_lines(css: str, line_length: int=80) -> str:
     """Wrap the lines of the given CSS to an approximate length."""
-    log.debug("Wrapping lines to ~{0} max line lenght.".format(line_length))
+    print(f"Wrapping lines to ~{line_length} max line lenght.")
     lines, line_start = [], 0
     for i, char in enumerate(css):
         # Its safe to break after } characters.
@@ -255,13 +248,11 @@ def wrap_css_lines(css: str, line_length: int=80) -> str:
 
 def add_encoding(css: str) -> str:
     """Add @charset 'UTF-8'; if missing."""
-    log.debug("Adding encoding declaration if needed.")
     return "@charset utf-8;\n\n\n" + css if "@charset" not in css else css
 
 
 def normalize_whitespace(css: str) -> str:
     """Normalize css string white spaces."""
-    log.debug("Starting to Normalize white spaces on CSS if needed.")
     css_no_trailing_whitespace = ""
     for line_of_css in css.splitlines():  # remove all trailing white spaces
         css_no_trailing_whitespace += line_of_css.rstrip() + "\n"
@@ -272,13 +263,11 @@ def normalize_whitespace(css: str) -> str:
     css = re.sub(r"\n{6,}", "\n\n\n{}\n\n\n".format(h_line), css)
     css = css.replace(" ;\n", ";\n").replace("{\n", " {\n")
     css = re.sub("\s{2,}{\n", " {\n", css)
-    log.debug("Finished Normalize white spaces on CSS.")
     return css.replace("\t", "    ").rstrip() + "\n"
 
 
 def justify_right(css: str) -> str:
     """Justify to the Right all CSS properties on the argument css string."""
-    log.debug("Starting Justify to the Right all CSS / SCSS Property values.")
     max_indent, right_justified_css = 1, ""
     for css_line in css.splitlines():
         c_1 = len(css_line.split(":")) == 2 and css_line.strip().endswith(";")
@@ -303,13 +292,11 @@ def justify_right(css: str) -> str:
             right_justified_css += justified_line_of_css + "\n"
         else:
             right_justified_css += line_of_css + "\n"
-    log.debug("Finished Justify to the Right all CSS / SCSS Property values.")
     return right_justified_css if max_indent > 1 else css
 
 
 def split_long_selectors(css: str) -> str:
     """Split too large CSS Selectors chained with commas if > 80 chars."""
-    log.debug("Splitting too long chained selectors on CSS / SCSS.")
     result = ""
     for line in css.splitlines():
         cond_1 = len(line) > 80 and "," in line and line.strip().endswith("{")
@@ -330,7 +317,6 @@ def simple_replace(css: str) -> str:
 
 def css_prettify(css: str, justify: bool=False, extraline: bool=False) -> str:
     """Prettify CSS main function."""
-    log.info("Prettify CSS / SCSS...")
     css = sort_properties(css)
     css = condense_zero_units(css)
     css = wrap_css_lines(css, 80)
@@ -342,7 +328,6 @@ def css_prettify(css: str, justify: bool=False, extraline: bool=False) -> str:
     css = simple_replace(css)
     if extraline:
         css = "\n\n".join(css.replace("\t", "    ").splitlines()) + "\n"
-    log.info("Finished Prettify CSS / SCSS !.")
     return css
 
 
@@ -357,7 +342,7 @@ regez = re.compile(r'^(\s*)', re.MULTILINE)
 
 def prettify(self, encoding=None, formatter="minimal", indent_width=4):
     """Monkey Patch the BS4 prettify to allow custom indentations."""
-    log.debug("Monkey Patching BeautifulSoup on-the-fly to process HTML...")
+    print("Monkey Patching BeautifulSoup on-the-fly to process HTML...")
     return regez.sub(r'\1' * indent_width,
                      orig_prettify(self, encoding, formatter))
 
@@ -366,11 +351,9 @@ BeautifulSoup.prettify = prettify
 
 def html_prettify(html: str, extraline: bool=False) -> str:
     """Prettify HTML main function."""
-    log.info("Prettify HTML...")
     html = BeautifulSoup(html).prettify()
     if extraline:
         html = "\n\n".join(html.replace("\t", "    ").splitlines()) + "\n"
-    log.info("Finished prettify HTML !.")
     return html
 
 
@@ -379,17 +362,17 @@ def html_prettify(html: str, extraline: bool=False) -> str:
 
 def process_multiple_files(file_path):
     """Process multiple CSS, HTML files with multiprocessing."""
-    log.debug("Process {} is Compressing {0}.".format(os.getpid(), file_path))
+    print(f"Process {os.getpid()} is processing {file_path}.")
     if args.watch:
         previous = int(os.stat(file_path).st_mtime)
-        log.info("Process {} is Watching {0}.".format(os.getpid(), file_path))
+        print(f"Process {os.getpid()} is Watching {file_path}.")
         while True:
             actual = int(os.stat(file_path).st_mtime)
             if previous == actual:
                 sleep(60)
             else:
                 previous = actual
-                log.debug("Modification detected on {0}.".format(file_path))
+                print("Modification detected on {file_path}.")
                 if file_path.endswith((".css", ".scss")):
                     process_single_css_file(file_path)
                 else:
@@ -407,7 +390,6 @@ def prefixer_extensioner(file_path: str) -> str:
     This is needed because filepath.replace('.foo', '.bar') sometimes may
     replace '/folder.foo/file.foo' into '/folder.bar/file.bar' wrong!.
     """
-    log.debug("Prepending '{}' Prefix to {}.".format(args.prefix, file_path))
     extension = os.path.splitext(file_path)[1].lower()
     filenames = os.path.splitext(os.path.basename(file_path))[0]
     filenames = args.prefix + filenames if args.prefix else filenames
@@ -418,11 +400,9 @@ def prefixer_extensioner(file_path: str) -> str:
 
 def process_single_css_file(css_file_path: str) -> str:
     """Process a single CSS file."""
-    log.info("Processing CSS / SCSS file: {0}".format(css_file_path))
     global args
     with open(css_file_path, encoding="utf-8-sig") as css_file:
         original_css = css_file.read()
-    log.debug("INPUT: Reading CSS file {0}.".format(css_file_path))
     pretty_css = css_prettify(original_css, args.justify, args.extraline)
     if args.timestamp:
         taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
@@ -430,20 +410,16 @@ def process_single_css_file(css_file_path: str) -> str:
     min_css_file_path = prefixer_extensioner(css_file_path)
     with open(min_css_file_path, "w", encoding="utf-8") as output_file:
         output_file.write(pretty_css)
-    log.debug("OUTPUT: Writing CSS Minified {0}.".format(min_css_file_path))
     return pretty_css
 
 
 def process_single_html_file(html_file_path: str) -> str:
     """Process a single HTML file."""
-    log.info("Processing HTML file: {0}".format(html_file_path))
     with open(html_file_path, encoding="utf-8-sig") as html_file:
         pretty_html = html_prettify(html_file.read(), args.extraline)
-    log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(html_file_path)
     with open(html_file_path, "w", encoding="utf-8") as output_file:
         output_file.write(pretty_html)
-    log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
     return pretty_html
 
 
@@ -488,30 +464,22 @@ def main():
     """Main Loop."""
     make_arguments_parser()
     global log
-    log = make_logger("css-html-prettify")  # AutoMagically make a Logger Log
-    check_encoding()  # AutoMagically Check Encodings/root
-    set_process_name("css-html-prettify")  # set Name
-    set_single_instance("css-html-prettify")  # Auto set Single Instance
-    set_terminal_title("css-html-prettify")
-    log.disable(log.CRITICAL) if args.quiet else log.debug("Max Logging ON.")
-    log.info(__doc__ + __version__)
-    check_folder(os.path.dirname(args.fullpath))
-    atexit.register(beep) if args.beep else log.debug("Beep sound at exit OFF")
+    print(__doc__ + __version__)
     if args.before and getoutput:
-        log.info(getoutput(str(args.before)))
+        print(getoutput(str(args.before)))
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(
             (".css", ".scss")):  # Work based on if argument is file or folder.
-        log.info("Target is a CSS / SCSS File.")
+        print("Target is a CSS / SCSS File.")
         list_of_files = str(args.fullpath)
         process_single_css_file(args.fullpath)
     elif os.path.isfile(args.fullpath
                         ) and args.fullpath.endswith((".htm", ".html")):
-        log.info("Target is a HTML File.")
+        print("Target is a HTML File.")
         list_of_files = str(args.fullpath)
         process_single_html_file(args.fullpath)
     elif os.path.isdir(args.fullpath):
-        log.info("Target is a Folder with CSS / SCSS, HTML, JS.")
-        log.warning("Processing a whole Folder may take some time...")
+        print("Target is a Folder with CSS / SCSS, HTML, JS.")
+        print("Processing a whole Folder may take some time...")
         list_of_files = walk2list(
             args.fullpath, (".css", ".scss", ".html", ".htm"), ".min.css")
         pool = Pool(cpu_count())  # Multiprocessing Async
@@ -519,15 +487,13 @@ def main():
         pool.close()
         pool.join()
     else:
-        log.critical("File or folder not found,or cant be read,or I/O Error.")
+        print("File or folder not found,or cant be read,or I/O Error.")
         sys.exit(1)
     if args.after and getoutput:
-        log.info(getoutput(str(args.after)))
-    log.info('\n {0} \n Files Processed: {1}.'.format('-' * 80, list_of_files))
-    log.info('Number of Files Processed: {0}'.format(
-        len(list_of_files) if isinstance(list_of_files, tuple) else 1))
-    set_terminal_title()
-    make_post_exec_msg(start_time, "css-html-prettify")
+        print(getoutput(str(args.after)))
+    print(f'\n {"-" * 80} \n Files Processed: {list_of_files}.')
+    print(f'''Number of Files Processed:
+          {len(list_of_files) if isinstance(list_of_files, tuple) else 1}''')
 
 
 if __name__ in '__main__':
