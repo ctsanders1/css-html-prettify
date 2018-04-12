@@ -1,8 +1,8 @@
 # css-html-prettify
 
-Async single-file cross-platform Prettifier Beautifier for the Web.
+Async single-file cross-platform Prettifier Beautifier for the Web. [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org)
 
-[![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org)
+![screenshot](https://source.unsplash.com/q78PYnUehV8/800x402 "Illustrative Photo by https://unsplash.com/@s_erwin")
 
 
 https://pypi.python.org/pypi/css-html-prettify
