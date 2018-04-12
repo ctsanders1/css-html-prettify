@@ -93,7 +93,9 @@ Uninstall `pip uninstall css-html-prettify`
 # Example
 
 <details>
+
 **Input CSS:**
+
 ```css
 /* dont remove this comment */
 .class, #NotHex, input[type="text"], a:hover  {
@@ -116,6 +118,7 @@ Uninstall `pip uninstall css-html-prettify`
 ```
 
 **Output CSS:**
+
 ```css
 @charset utf-8;
 
@@ -148,6 +151,7 @@ Uninstall `pip uninstall css-html-prettify`
 
 
 ```
+
 </details>
 
 
