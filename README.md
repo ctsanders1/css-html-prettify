@@ -157,7 +157,7 @@ Uninstall `pip uninstall css-html-prettify`
 
 # Coding Style Guide
 
-- Lint, [PEP-8](https://www.python.org/dev/peps/pep-0008), [PEP-257](https://www.python.org/dev/peps/pep-0257),  [iSort](https://github.com/timothycrosley/isort) must Pass Ok. `pip install pep8 pep257 pylama isort`
+- Lint, [PEP-8](https://www.python.org/dev/peps/pep-0008), [PEP-257](https://www.python.org/dev/peps/pep-0257),  [iSort](https://github.com/timothycrosley/isort) must Pass Ok. `pip install prospector pre-commit isort`
 - If theres any kind of Tests, they must Pass Ok, if theres no Tests, its ok, if Tests provided, is even better.
 
 
