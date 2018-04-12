@@ -23,7 +23,7 @@ from subprocess import getoutput
 try:
     from bs4 import BeautifulSoup
 except ImportError:
-    print("BeautifulSoup4 Not Found!, use:  sudo apt-get install python3-bs4")
+    print("BeautifulSoup4 Not Found, use: pip install BeautifulSoup4")
 
 
 from anglerfish import (check_encoding, check_folder, make_logger,
