@@ -43,14 +43,7 @@ class ZipApp(Command):
 
 
 setup(
-
-    install_requires=['anglerfish'],
-    setup_requires=['anglerfish'],
-    tests_require=['anglerfish'],
     requires=['anglerfish', 'beautifulsoup4'],
-
     scripts=["css-html-prettify.py"],
-
     cmdclass={"zipapp": ZipApp},
-
 )
