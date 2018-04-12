@@ -71,7 +71,6 @@ css-html-prettify.py /project/static/
 
 # Install
 
-
 ```
 pip install css-html-prettify
 ```
