@@ -22,6 +22,7 @@ from subprocess import getoutput
 try:
     from bs4 import BeautifulSoup
 except ImportError:
+    BeautifulSoup = None
     print("BeautifulSoup4 Not Found, use: pip install BeautifulSoup4")
 
 
@@ -327,26 +328,35 @@ def css_prettify(css: str, justify: bool=False, extraline: bool=False) -> str:
 # HTML Prettify
 
 
-# http://stackoverflow.com/a/15513483
-orig_prettify = BeautifulSoup.prettify
-regez = re.compile(r'^(\s*)', re.MULTILINE)
+if BeautifulSoup:
+    # http://stackoverflow.com/a/15513483
+    orig_prettify = BeautifulSoup.prettify
+    regez = re.compile(r'^(\s*)', re.MULTILINE)
 
 
-def prettify(self, encoding=None, formatter="minimal", indent_width=4):
-    """Monkey Patch the BS4 prettify to allow custom indentations."""
-    print("Monkey Patching BeautifulSoup on-the-fly to process HTML...")
-    return regez.sub(r'\1' * indent_width,
-                     orig_prettify(self, encoding, formatter))
+    def prettify(self, encoding=None, formatter="minimal", indent_width=4):
+        """Monkey Patch the BS4 prettify to allow custom indentations."""
+        print("Monkey Patching BeautifulSoup on-the-fly to process HTML...")
+        return regez.sub(r'\1' * indent_width,
+                         orig_prettify(self, encoding, formatter))
 
-BeautifulSoup.prettify = prettify
+    BeautifulSoup.prettify = prettify
 
 
-def html_prettify(html: str, extraline: bool=False) -> str:
-    """Prettify HTML main function."""
-    html = BeautifulSoup(html).prettify()
-    if extraline:
-        html = "\n\n".join(html.replace("\t", "    ").splitlines()) + "\n"
-    return html
+    def html_prettify(html: str, extraline: bool=False) -> str:
+        """Prettify HTML main function."""
+        html = BeautifulSoup(html).prettify()
+        if extraline:
+            html = "\n\n".join(html.replace("\t", "    ").splitlines()) + "\n"
+        return html
+else:
+    # XHTML Prettify
+    def html_prettify(html: str, extraline: bool=False) -> str:
+        """Prettify XHTML main function."""
+        html = minidom.parseString(html).toprettyxml(indent="    ")[22:]
+        if extraline:
+            html = "\n\n".join(html.replace("\t", "    ").splitlines()) + "\n"
+        return html
 
 
 ##############################################################################
