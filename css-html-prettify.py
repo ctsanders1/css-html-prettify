@@ -252,8 +252,7 @@ def normalize_whitespace(css: str) -> str:
     css = css_no_trailing_whitespace
     css = re.sub(r"\n{3}", "\n\n\n", css)  # if 3 new lines,make them 2
     css = re.sub(r"\n{5}", "\n\n\n\n\n", css)  # if 5 new lines, make them 4
-    h_line = "/* {} */".format("-" * 72)  # if >6 new lines, horizontal line
-    css = re.sub(r"\n{6,}", "\n\n\n{}\n\n\n".format(h_line), css)
+    css = re.sub(r"\n{6,}", f"\n\n\n/*{'-' * 72}*/\n\n\n", css)
     css = css.replace(" ;\n", ";\n").replace("{\n", " {\n")
     css = re.sub("\s{2,}{\n", " {\n", css)
     return css.replace("\t", "    ").rstrip() + "\n"
@@ -411,7 +410,7 @@ def process_single_css_file(css_file_path: str) -> str:
         original_css = css_file.read()
     pretty_css = css_prettify(original_css, args.justify, args.extraline)
     if args.timestamp:
-        taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
+        taim = f"/* {datetime.now().replace(microsecond=0).isoformat(' ')} */ "
         pretty_css = taim + pretty_css
     min_css_file_path = prefixer_extensioner(css_file_path)
     with open(min_css_file_path, "w", encoding="utf-8") as output_file:
