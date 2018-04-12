@@ -88,7 +88,7 @@ Uninstall `pip uninstall css-html-prettify`
 
 **Optional:**
 
-- BeautifulSoup 4+ (for HTML5 Prettify, without BeautifulSoup it works but only strict XHTML can be processed)
+- BeautifulSoup 4+ (Recommeded, for HTML5 Prettify, without BeautifulSoup it works, but only strict XHTML can be processed)
 
 
 # Example
