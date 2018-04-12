@@ -26,7 +26,7 @@ except ImportError:
     print("BeautifulSoup4 Not Found, use: pip install BeautifulSoup4")
 
 
-__version__ = '2.5.0'
+__version__ = '2.5.5'
 
 
 start_time = datetime.now()

@@ -23,7 +23,7 @@
 #
 # To Upload to PyPI by executing:
 # python3 setup.py register
-# python3 setup.py bdist_egg sdist --formats=bztar,gztar,zip upload --sign
+# python3 setup.py bdist_egg sdist --formats=zip upload --sign
 
 
 from setuptools import setup, Command
