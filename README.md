@@ -34,7 +34,6 @@ optional arguments:
     --group          Group Alphabetically CSS Poperties by name.
     --justify        Right Justify CSS Properties (Experimental).
     --extraline      Add 1 New Line for each New Line (Experimental)
-    --beep           Beep sound will be played when it ends at exit.
 
 CSS-HTML-Prettify: Takes file or folder full path string and process all
 CSS/SCSS/HTML found. If argument is not file/folder will fail. Check Updates
