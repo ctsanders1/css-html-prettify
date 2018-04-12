@@ -75,8 +75,24 @@ css-html-prettify.py /project/static/
 ```
 pip install css-html-prettify
 ```
+Uninstall `pip uninstall css-html-prettify`
 
 
+# Why?
+
+- This project is the small brother of [another project that does the inverse, a Minifier Compressor for the Web.](https://github.com/juancarlospaco/css-html-js-minify#css-html-js-minify)
+
+
+# Requisites
+
+- [Python 3.6+](https://www.python.org "Python Homepage")
+- BeautifulSoup 4+.
+- Anglerfish.
+
+
+# Example
+
+<details>
 **Input CSS:**
 ```css
 /* dont remove this comment */
@@ -132,18 +148,7 @@ pip install css-html-prettify
 
 
 ```
-
-
-# Why?
-
-- This project is the small brother of [another project that does the inverse, a Minifier Compressor for the Web.](https://github.com/juancarlospaco/css-html-js-minify#css-html-js-minify)
-
-
-# Requisites
-
-- [Python 3.6+](https://www.python.org "Python Homepage")
-- BeautifulSoup 4+.
-- Anglerfish.
+</details>
 
 
 # Coding Style Guide
