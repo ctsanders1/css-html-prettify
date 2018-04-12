@@ -54,7 +54,7 @@ not. Watch works for whole folders, with minimum of ~60 Secs between runs.
 - `*.css` files are saved as `*.css`, `*.html` are saved as `*.html`, unless provided a prefix.
 
 
-# Usage:
+# Use
 
 ```bash
 css-html-prettify.py file.html
@@ -69,11 +69,11 @@ css-html-prettify.py /project/static/
 ```
 
 
-# Install permanently on the system:
+# Install
 
-**PIP:** *(Recommended!)*
+
 ```
-sudo pip3 install css-html-prettify
+pip install css-html-prettify
 ```
 
 
@@ -134,31 +134,31 @@ sudo pip3 install css-html-prettify
 ```
 
 
-# Why?:
+# Why?
 
 - This project is the small brother of [another project that does the inverse, a Minifier Compressor for the Web.](https://github.com/juancarlospaco/css-html-js-minify#css-html-js-minify)
 
 
-# Requisites:
+# Requisites
 
-- [Python 3.x](https://www.python.org "Python Homepage")
-- BeautifulSoup 4.
+- [Python 3.6+](https://www.python.org "Python Homepage")
+- BeautifulSoup 4+.
 - Anglerfish.
 
 
-# Coding Style Guide:
+# Coding Style Guide
 
 - Lint, [PEP-8](https://www.python.org/dev/peps/pep-0008), [PEP-257](https://www.python.org/dev/peps/pep-0257),  [iSort](https://github.com/timothycrosley/isort) must Pass Ok. `pip install pep8 pep257 pylama isort`
 - If theres any kind of Tests, they must Pass Ok, if theres no Tests, its ok, if Tests provided, is even better.
 
 
-# Contributors:
+# Contributors
 
 - **Please Star this Repo on Github !**, it helps to show up faster on searchs.
 - **Ad-Hocracy Meritocracy**: 3 Pull Requests Merged on Master you become Repo Admin. *Join us!*
 - [Help](https://help.github.com/articles/using-pull-requests) and more [Help](https://help.github.com/articles/fork-a-repo) and Interactive Quick [Git Tutorial](https://try.github.io).
 
 
-# Licence:
+# Licence
 
 - GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence [YOU Request via Bug Report](https://github.com/juancarlospaco/css-html-prettify/issues/new).
