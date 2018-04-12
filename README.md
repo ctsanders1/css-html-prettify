@@ -85,8 +85,10 @@ Uninstall `pip uninstall css-html-prettify`
 # Requisites
 
 - [Python 3.6+](https://www.python.org "Python Homepage")
-- BeautifulSoup 4+.
-- Anglerfish.
+
+**Optional:**
+
+- BeautifulSoup 4+ (for HTML5 Prettify, without BeautifulSoup it works but only strict XHTML can be processed)
 
 
 # Example
