@@ -56,7 +56,7 @@ not. Watch works for whole folders, with minimum of ~60 Secs between runs.
 
 # Use
 
-```bash
+```shell
 css-html-prettify.py file.html
 
 css-html-prettify.py file.htm
@@ -164,7 +164,6 @@ Uninstall `pip uninstall css-html-prettify`
 # Contributors
 
 - **Please Star this Repo on Github !**, it helps to show up faster on searchs.
-- **Ad-Hocracy Meritocracy**: 3 Pull Requests Merged on Master you become Repo Admin. *Join us!*
 - [Help](https://help.github.com/articles/using-pull-requests) and more [Help](https://help.github.com/articles/fork-a-repo) and Interactive Quick [Git Tutorial](https://try.github.io).
 
 
