@@ -32,13 +32,8 @@ from anglerfish import (check_encoding, check_folder, make_logger,
                         set_terminal_title)
 
 
-__version__ = '2.0.0'
-__license__ = 'GPLv3+ LGPLv3+'
-__author__ = 'Juan Carlos'
-__email__ = 'juancarlospaco@gmail.com'
-__url__ = 'https://github.com/juancarlospaco/css-html-prettify'
-__source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
-              'css-html-prettify/master/css-html-prettify.py')
+__version__ = '2.5.0'
+__all__ = ('', )
 
 
 start_time = datetime.now()
